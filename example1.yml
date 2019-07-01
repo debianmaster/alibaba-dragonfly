@@ -6,7 +6,12 @@
     yum:
       name: epel-release
       state: present
-  - easy_install:
+  - name: install setup tools
+    yum:
+      name: python-setuptools
+      state: present
+  - name: easy install
+    easy_install:
       name: pip
       state: latest
   - name: Add epel-release repo
@@ -21,6 +26,14 @@
     service:
       name: docker
       state: started
+  - name: pull an image
+    docker_image:
+      name: dragonflyoss/dfclient:0.4.0
+      source: pull
+  - name: pull an image
+    docker_image:
+      name: dragonflyoss/supernode:0.4.0
+      source: pull
   - name: create dir
     file:
       path: /etc/dragonfly
@@ -53,6 +66,7 @@
       ports:
       - "65001:65001"
       command: --registry https://index.docker.io
+
 - name: setup supernode
   hosts: supernode
   tasks:
