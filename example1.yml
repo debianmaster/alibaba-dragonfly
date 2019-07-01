@@ -1,0 +1,68 @@
+---
+- name: setup docker
+  hosts: all
+  tasks:
+  - name: Add epel-release repo
+    yum:
+      name: epel-release
+      state: present
+  - easy_install:
+      name: pip
+      state: latest
+  - name: Add epel-release repo
+    pip:
+      name: docker-py
+      state: present  
+  - name: Install docker
+    yum:
+      name: docker
+      state: present
+  - name: Start docker
+    service:
+      name: docker
+      state: started
+  - name: create dir
+    file:
+      path: /etc/dragonfly
+      state: directory
+  - name: Copy file with owner and permissions
+    copy:
+      src: dfget.yml
+      dest: /etc/dragonfly/dfget.yml
+      owner: root
+      group: root
+      mode: '0644'
+  - name: Copy file with owner and permissions
+    copy:
+      src: daemon.json
+      dest: /etc/docker/daemon.json
+      owner: root
+      group: root
+      mode: '0644'
+  - name: restart docker
+    service:
+      name: docker
+      state: restarted      
+  - name: start dfclient
+    docker_container:
+      state: started
+      name: dfclient
+      volumes:
+        - /etc/dragonfly:/etc/dragonfly     
+      image: dragonflyoss/dfclient:0.4.0
+      ports:
+      - "65001:65001"
+      command: --registry https://index.docker.io
+- name: setup supernode
+  hosts: supernode
+  tasks:
+  - name: start supernode
+    docker_container:
+      state: started
+      name: supernode
+      image: dragonflyoss/supernode:0.4.0
+      ports:
+      - "8001:8001"
+      - "8002:8002"
+      command: -Dsupernode.advertiseIp=node0
+
