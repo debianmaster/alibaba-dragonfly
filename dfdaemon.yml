@@ -1,0 +1,3 @@
+proxies:
+# proxy all http image layer download requests with dfget
+- regx: blobs/sha256:.*

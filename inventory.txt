@@ -1,5 +1,6 @@
 [all]
 cluster-node[0:4] ansible_connection=docker
+
 [supernode]
 cluster-node0 ansible_connection=docker
 

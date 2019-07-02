@@ -1,7 +1,9 @@
 ---
 - name: setup docker
   hosts: all
+  gather_facts: yes
   tasks:
+  - debug: var=hostvars[inventory_hostname]['ansible_default_ipv4']['address']  
   - name: Add epel-release repo
     yum:
       name: epel-release
@@ -28,11 +30,11 @@
       state: started
   - name: pull an image
     docker_image:
-      name: dragonflyoss/dfclient:0.4.0
+      name: dragonflyoss/dfclient:0.3.1
       source: pull
   - name: pull an image
     docker_image:
-      name: dragonflyoss/supernode:0.4.0
+      name: dragonflyoss/supernode:0.3.1
       source: pull
   - name: create dir
     file:
@@ -42,6 +44,13 @@
     copy:
       src: dfget.yml
       dest: /etc/dragonfly/dfget.yml
+      owner: root
+      group: root
+      mode: '0644'
+  - name: Copy file with owner and permissions
+    copy:
+      src: dfdaemon.yml
+      dest: /etc/dragonfly/dfdaemon.yml
       owner: root
       group: root
       mode: '0644'
@@ -62,7 +71,7 @@
       name: dfclient
       volumes:
         - /etc/dragonfly:/etc/dragonfly     
-      image: dragonflyoss/dfclient:0.4.0
+      image: dragonflyoss/dfclient:0.3.1
       ports:
       - "65001:65001"
       command: --registry https://index.docker.io
@@ -74,9 +83,9 @@
     docker_container:
       state: started
       name: supernode
-      image: dragonflyoss/supernode:0.4.0
+      image: dragonflyoss/supernode:0.3.1
       ports:
       - "8001:8001"
       - "8002:8002"
-      command: -Dsupernode.advertiseIp=node0
+      command: -Dsupernode.advertiseIp=172.17.0.2
 

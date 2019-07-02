@@ -8,6 +8,7 @@ machines:
     name: node%d
     portMappings:
     - containerPort: 22
+      hostPort: 2222    
     privileged: true
     volumes:
     - type: volume
